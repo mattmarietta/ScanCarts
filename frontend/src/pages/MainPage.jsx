@@ -3,7 +3,9 @@ import React, { useState } from "react";
 const MainPage = () => {
   const [image, setImage] = useState(null);  // Store the uploaded image file
   const [preview, setPreview] = useState(null);  // Store the image preview URL
-  const [labels, setLabels] = useState([]);  // Store the labels returned from the backend
+  const [labels, setLabels] = useState([]);  // Store detected object labels
+  const [logos, setLogos] = useState([]);  // Store detected brand logos
+  const [extractedText, setExtractedText] = useState("");  // Store extracted text
   const [loading, setLoading] = useState(false);  // Track loading state
 
   // Handle file selection
@@ -26,14 +28,16 @@ const MainPage = () => {
     formData.append("image", image);
 
     try {
-      const response = await fetch("http://localhost:5000/upload", {
+      const response = await fetch("http://127.0.0.1:5000/upload", {
         method: "POST",
         body: formData,
       });
 
       const result = await response.json();
       if (response.ok) {
-        setLabels(result.labels);  // Set the returned labels to the state
+        setLabels(result.labels || []);  // Update labels
+        setLogos(result.logos || []);  // Update logos
+        setExtractedText(result.text || "");  // Update extracted text
       } else {
         alert(result.error || "Failed to analyze image");
       }
@@ -48,31 +52,44 @@ const MainPage = () => {
   return (
     <div className="container">
       <h1>ScanCart: Retail Product Scanner</h1>
+      
+      {/* File Upload */}
       <div>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleUpload}
-        />
+        <input type="file" accept="image/*" onChange={handleUpload} />
       </div>
+
+      {/* Image Preview */}
       <div>
         {preview && <img src={preview} alt="Preview" width="200px" />}
       </div>
+
+      {/* Submit Button */}
       <button onClick={handleSubmitImage} disabled={loading}>
         {loading ? "Processing..." : "Submit Image"}
       </button>
 
+      {/* Display Results */}
       <div>
-        <h3>Detected Labels</h3>
+        <h3>-------Detected Labels-------</h3>
         {labels.length > 0 ? (
           <ul>
-            {labels.map((label, index) => (
-              <li key={index}>{label}</li>
-            ))}
+            {labels.map((label, index) => <li key={index}>{label}</li>)}
           </ul>
         ) : (
           <p>No labels detected</p>
         )}
+
+        <h3>-------Detected Logos-------</h3>
+        {logos.length > 0 ? (
+          <ul>
+            {logos.map((logo, index) => <li key={index}>{logo}</li>)}
+          </ul>
+        ) : (
+          <p>No logos detected</p>
+        )}
+
+        <h3>-------Extracted Text-------</h3>
+        {extractedText ? <p>{extractedText}</p> : <p>No text detected</p>}
       </div>
     </div>
   );

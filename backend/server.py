@@ -3,15 +3,16 @@ import requests
 import os
 import base64
 from flask_cors import CORS
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 app = Flask(__name__)
-
 CORS(app)
 
-
-# Set your Google API Key
-
-API_KEY = os.environ.get("API_KEY")
+# Set your Google API Key (Use environment variable for security)
+API_KEY = os.environ.get("API_KEY")  # Ensure you set this in your environment
 VISION_API_URL = "https://vision.googleapis.com/v1/images:annotate"
 
 # Allowed image extensions
@@ -21,7 +22,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-#If the uploads folder does not exist, create it
+# Ensure uploads folder exists
 if not os.path.exists("uploads"):
     os.makedirs("uploads")
 
@@ -29,7 +30,6 @@ if not os.path.exists("uploads"):
 def home():
     return "Welcome to the home page of ScanCart!"
 
-# Define the upload route
 @app.route('/upload', methods=['POST'])
 def upload_image():
     if 'image' not in request.files:
@@ -45,7 +45,7 @@ def upload_image():
         file_path = os.path.join("uploads", file.filename)
         file.save(file_path)
 
-        # Convert the image to base64 format (Google Vision API expects this)
+        # Convert the image to base64 format
         with open(file_path, 'rb') as image_file:
             image_content = base64.b64encode(image_file.read()).decode('utf-8')
         
@@ -57,10 +57,9 @@ def upload_image():
                         "content": image_content  # base64 encoding
                     },
                     "features": [
-                        {
-                            "type": "LABEL_DETECTION",  # You can change this to other types like TEXT_DETECTION or LOGO_DETECTION
-                            "maxResults": 10
-                        }
+                        {"type": "LABEL_DETECTION", "maxResults": 10},  # Detect objects
+                        {"type": "LOGO_DETECTION", "maxResults": 5},  # Detect brand logos
+                        {"type": "TEXT_DETECTION", "maxResults": 5}  # Detect text
                     ]
                 }
             ]
@@ -73,17 +72,25 @@ def upload_image():
             json=request_data
         )
 
-        # Check if the request was successful
+        # Parse the response
         if response.status_code == 200:
-            annotations = response.json().get('responses')[0].get('labelAnnotations', [])
-            labels = [label['description'] for label in annotations]
+            response_data = response.json().get('responses', [{}])[0]
 
-            return jsonify({'labels': labels}), 200
+            # Extract labels
+            labels = [label['description'] for label in response_data.get('labelAnnotations', [])]
+
+            # Extract logos
+            logos = [logo['description'] for logo in response_data.get('logoAnnotations', [])]
+
+            # Extract text
+            text = response_data.get('textAnnotations', [])
+            extracted_text = text[0]['description'] if text else ""
+
+            return jsonify({'labels': labels, 'logos': logos, 'text': extracted_text}), 200
         else:
             return jsonify({'error': 'Failed to analyze image'}), 500
 
     return jsonify({'error': 'Invalid file format'}), 400
-
 
 if __name__ == '__main__':
     app.run(debug=True)
