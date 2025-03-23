@@ -76,7 +76,7 @@ def upload_image():
             text = response_data.get('textAnnotations', [])
             extracted_text = text[0]['description'] if text else ""
 
-            search_query = generate_search_query(logos, labels, extracted_text)
+            search_query = generate_search_query(logos, labels)
 
             # Pass the search query to Oxylabs
             oxylabs_results = query_oxylabs(search_query)
@@ -93,7 +93,7 @@ def upload_image():
 
     return jsonify({'error': 'Invalid file format'}), 400
 
-def generate_search_query(logos, labels, text):
+def generate_search_query(logos, labels):
     """Generates a search query for product lookup."""
     query = ""
 
@@ -102,9 +102,6 @@ def generate_search_query(logos, labels, text):
 
     if labels:
         query += labels[0] + " "
-
-    if text:
-        query += " ".join(text.split()[:5]) 
 
     return query.strip()
 

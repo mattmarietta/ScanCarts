@@ -8,8 +8,14 @@ const MainPage = () => {
   const [logos, setLogos] = useState([]); // Store detected brand logos
   const [extractedText, setExtractedText] = useState(""); // Store extracted text
   const [searchResults, setSearchResults] = useState(""); // Store extracted text
+  const [retailerResults, setRetailerResults] = useState([]);
   const [loading, setLoading] = useState(false); // Track loading state
-  console.log(searchResults)
+  if (searchResults) {
+    console.log(searchResults.results[0].content);
+    console.log(
+      searchResults.results[0].content.results.amazons_choices[0].price
+    );
+  }
   // Handle file selection
   const handleUpload = (e) => {
     const file = e.target.files[0];
@@ -107,7 +113,11 @@ const MainPage = () => {
         {extractedText ? <p>{extractedText}</p> : <p>No text detected</p>}
 
         <h3>-------Search Results-------</h3>
-        {/* { searchResults ? <div>{searchResults}</div> : null} */}
+        {searchResults ? (
+          <div>
+            {searchResults.results[0].content.results.amazons_choices[0].price}
+          </div>
+        ) : null}
       </div>
     </div>
   );
