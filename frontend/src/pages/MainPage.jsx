@@ -52,28 +52,39 @@ const MainPage = () => {
 
   return (
     <div className="w-full flex flex-col items-center ">
-      <h1 className="">ScanCart: Retail Product Scanner</h1>
-
-      {/* File Upload */}
-
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleUpload}
-        className="bg-gray-200"
-      />
-
-      {/* Image Preview */}
-      <div>{preview && <img src={preview} alt="Preview" width="200px" />}</div>
-
-      {/* Submit Button */}
-      <button
-        className="rounded-full p-2 border"
-        onClick={handleSubmitImage}
-        disabled={loading}
-      >
-        {loading ? "Processing..." : "Submit Image"}
-      </button>
+      <div className="logo-container">
+        <div className="left">
+          <h1 className="logo-symbol">🛒</h1>
+        </div>
+        <div className="right">
+          <h1 className="logo">ScanCart</h1>
+          <h2 className="sublogo">Retail Product Scanner</h2>
+        </div>
+      </div>
+      <div className="main-container">
+        <div className="row">
+          <div className="box-1">
+          {/* Image Preview */}
+          <div>{preview && <img src={preview} alt="Preview" width="200px"/>}</div>
+          {/* File Upload */}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleUpload}
+          />
+          {/* Submit Button */}
+          <button
+            className={`rounded-full p-2 border ${loading ? "loading" : ""}`}
+            onClick={handleSubmitImage}
+            disabled={loading}
+          >
+            <span className="searching">{loading ? "Searching..." : "Submit Image"}</span>
+            {loading && <span className="cart-icon">🛒</span>}
+          </button>
+          </div>
+        </div>
+      </div>
+      
 
       {/* Display Results */}
       <div className="p-5 flex justify-center flex-col items-center">
