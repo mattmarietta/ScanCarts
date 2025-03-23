@@ -8,10 +8,14 @@ const MainPage = () => {
   const [logos, setLogos] = useState([]); // Store detected brand logos
   const [extractedText, setExtractedText] = useState(""); // Store extracted text
   const [searchResults, setSearchResults] = useState(""); // Store extracted text
+  const [aiDesc, setAiDesc] = useState(""); // Store extracted text
   const [retailerResults, setRetailerResults] = useState([]);
   const [loading, setLoading] = useState(false); // Track loading state
   if (searchResults) {
     console.log(searchResults);
+  }
+  if (aiDesc) {
+    console.log(aiDesc);
   }
   // Handle file selection
   const handleUpload = (e) => {
@@ -44,6 +48,7 @@ const MainPage = () => {
         setLogos(result.logos || []); // Update logos
         setExtractedText(result.text || ""); // Update extracted text
         setSearchResults(result.results);
+        setAiDesc(result.ai_description);
         console.log(result.retailer);
       } else {
         alert(result.error || "Failed to analyze image");
@@ -83,6 +88,8 @@ const MainPage = () => {
 
       {/* Display Results */}
       <div className="p-5 flex justify-center flex-col items-center">
+      <h3>-------AI Description-------</h3>
+        {aiDesc ? <p>{aiDesc}</p> : null }
         <h3>-------Detected Labels-------</h3>
         {labels.length > 0 ? (
           <ul>
