@@ -4,13 +4,14 @@ import os
 import base64
 from flask_cors import CORS
 from dotenv import load_dotenv
+import requests
+from pprint import pprint
 
 load_dotenv()
 
-
 app = Flask(__name__)
 CORS(app)
-
+query = ''
 # Set your Google API Key (Use environment variable for security)
 API_KEY = os.environ.get("API_KEY")  # Ensure you set this in your environment
 VISION_API_URL = "https://vision.googleapis.com/v1/images:annotate"
@@ -91,6 +92,29 @@ def upload_image():
             return jsonify({'error': 'Failed to analyze image'}), 500
 
     return jsonify({'error': 'Invalid file format'}), 400
+
+# Structure payload.
+payload = {
+   'source': 'amazon_search',
+   'parse': True,
+   'query': "iphone 15",
+   'context': [
+        {'key': 'filter', 'value': 1}
+    ]
+}
+
+# Get response.
+response = requests.request(
+    'POST',
+    'https://realtime.oxylabs.io/v1/queries',
+    auth=('mattmarietta_ru5m0', 'Scan_Cart123'), #Your credentials go here
+    json=payload,
+)
+
+# Instead of response with job status and results url, this will return the
+# JSON response with results.
+pprint(response.json())
+
 
 if __name__ == '__main__':
     app.run(debug=True)
