@@ -7,8 +7,12 @@ const MainPage = () => {
   const [labels, setLabels] = useState([]); // Store detected object labels
   const [logos, setLogos] = useState([]); // Store detected brand logos
   const [extractedText, setExtractedText] = useState(""); // Store extracted text
+  const [searchResults, setSearchResults] = useState(""); // Store extracted text
+  const [retailerResults, setRetailerResults] = useState([]);
   const [loading, setLoading] = useState(false); // Track loading state
-
+  if (searchResults) {
+    console.log(searchResults);
+  }
   // Handle file selection
   const handleUpload = (e) => {
     const file = e.target.files[0];
@@ -39,6 +43,8 @@ const MainPage = () => {
         setLabels(result.labels || []); // Update labels
         setLogos(result.logos || []); // Update logos
         setExtractedText(result.text || ""); // Update extracted text
+        setSearchResults(result.results);
+        console.log(result.retailer);
       } else {
         alert(result.error || "Failed to analyze image");
       }
@@ -114,6 +120,13 @@ const MainPage = () => {
 
         <h3>-------Extracted Text-------</h3>
         {extractedText ? <p>{extractedText}</p> : <p>No text detected</p>}
+
+        <h3>-------Search Results-------</h3>
+        {searchResults
+          ? searchResults.map((retailer, index) => (
+              <Card key={`retailer-${index}`} retailerInfo={retailer}></Card>
+            ))
+          : null}
       </div>
     </div>
   );
