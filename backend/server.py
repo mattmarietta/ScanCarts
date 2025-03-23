@@ -29,7 +29,7 @@ if not os.path.exists("uploads"):
 
 @app.route('/')
 def home():
-    return "Welcome to the home page of ScanCart!"
+    return "Welcome to Scan Cart!"
 
 @app.route('/upload', methods=['POST'])
 def upload_image():
