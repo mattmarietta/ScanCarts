@@ -9,4 +9,134 @@
   h3 {
     font-weight: bold;
   }
+
+  .logo-container {
+    display: flex;
+    padding-top: 60px;
+
+  }
+  .logo-symbol {
+    font-size: 68px;
+    margin-right: 0;
+  }
+
+  .logo {
+    font-size: 60px;
+    padding: 24px 0px 0px 0px;
+    line-height: 45px;
+  }
+  .sublogo {
+    letter-spacing: 4px;
+    padding: 0 0 0 3px;
+  }
+  .main-container {
+    border: 1px solid;
+    display: flex;
+    width: 600px;
+    flex-wrap: wrap;
+  }
+  .row {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .box {
+    width: 100%;
+    border: 1px solid;
+    justify-content: center;
+    align-items: center;
+  }
+  .box-1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border: 1px solid;
+    height: 500px;
+    width: 600px;
+  }
+  input {
+    width: 300px;
+    transition-duration: 0.2s;
+    background-color: #d8dad3;
+    border-radius: 20px;
+
+  }
+  input:hover {
+    background-color: #f1f2eb;
+  }
+  button {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    height: 64px;
+    width: 300px; /* Adapted width */
+    padding: 0 32px;
+    border: 1px solid black;
+    border-radius: 10px;
+    font-family: Poppins;
+    font-size: 18px;
+    color: #ffffff;
+    cursor: pointer;
+    background-color: #f1f2eb; /* Default background */
+    transition: background-color 0.2s;
+  }
+  button:hover {
+    background-color: #67aaf9;
+  }
+  button > span {
+    position: relative;
+    z-index: 2;
+  }
+  button.loading {
+    cursor: wait;
+    background-color: #67aaf9;
+  }
+  button.loading::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    left: -100%;
+    width: 300%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      60deg,
+      transparent,
+      transparent 10px,
+      #4fa0fd 10px,
+      #4fa0fd 20px
+    );
+    animation: loading 1s infinite linear;
+  }
+  @keyframes loading {
+    0% {
+      transform: translateX(25px);
+    }
+    100% {
+      transform: translateX(-20px);
+    }
+  }
+  .cart-icon {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    transform: translateY(-50%);
+    font-size: 48px;
+    z-index: 3; /* Higher than loading animation */
+    animation: cart-move 2s infinite linear;
+    text-shadow: 1px 1px 2px black;
+  }
+  .searching {
+    font-size: 30px;
+    transition-duration: 0.2s;
+  }
+  @keyframes cart-move {
+    0% {
+      left: 100%; /* Starts outside the button on the right */
+    }
+    100% {
+      left: -50px; /* Moves across the button to the left */
+    }}
 }
