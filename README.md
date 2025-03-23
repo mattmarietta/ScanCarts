@@ -20,7 +20,7 @@ ScanCart is a full-stack retail application that allows users to scan an image o
 **Backend:**  
 - Flask (Python) for API handling  
 - Google Cloud Vision API for image processing  
-- OxyLab Web Source API for web scraping
+- OxyLab Web Scraper API for web scraping
 - OpenAI API for text generation
 
 ## 📦 Installation & Setup
