@@ -11,7 +11,7 @@ def allowed_file(filename):
 
 def generate_product_description(label, logo, description):
     # Ensure OpenAI API key is set
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    client = OpenAI(api_key='')
 
     # Construct dynamically in case there is nothing on that portion and then feed it to prompt
     prompt_parts = []

@@ -13,6 +13,8 @@ const MainPage = () => {
   const [loading, setLoading] = useState(false); // Track loading state
   const webcamRef = useRef(null);
   const [url, setUrl] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+
 
   useEffect(() => {
     if (json) {
@@ -44,22 +46,33 @@ const MainPage = () => {
   // Submit the image to the backend (Flask server)
   const handleSubmitImage = async () => {
     if (!image) {
-      return alert("Please upload an image.");
+      alert("Please upload an image.");
+      return;
     }
-
-    setLoading(true); // Show loading indicator while processing
+  
+    setLoading(true);
     const formData = new FormData();
-    formData.append("image", image);
-
+    
+    // Check if the image is a Blob or File
+    if (image instanceof Blob) {
+      //Use the explicit filename for this to work
+      formData.append("image", image, "capture.jpg"); 
+    } else {
+      formData.append("image", image);
+    }
+  
+    console.log("FormData:", formData);
+  
     try {
       const response = await fetch("http://127.0.0.1:5000/upload", {
         method: "POST",
         body: formData,
       });
-
+  
       const result = await response.json();
       if (response.ok) {
         setJson(result);
+        setSuccessMessage("✅ Image submitted successfully!");
       } else {
         alert(result.error || "Failed to analyze image");
       }
@@ -67,7 +80,7 @@ const MainPage = () => {
       console.error("Error:", error);
       alert("Image submission failed.");
     } finally {
-      setLoading(false); // Hide loading indicator
+      setLoading(false);
     }
   };
 
@@ -145,6 +158,7 @@ const MainPage = () => {
                 </span>
                 {loading && <span className="cart-icon">🛒</span>}
               </button>
+              {successMessage && <p className="text-green-500 mt-2">{successMessage}</p>}
             </div>
           </div>
         </div>
