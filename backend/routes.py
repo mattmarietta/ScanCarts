@@ -53,6 +53,9 @@ def upload_image():
             labels = [label['description'] for label in response_data.get('labelAnnotations', [])] or None
             logos = [logo['description'] for logo in response_data.get('logoAnnotations', [])] or None
             text = response_data.get('textAnnotations', []) or None
+            labels = [label['description'] for label in response_data.get('labelAnnotations', [])] or None
+            logos = [logo['description'] for logo in response_data.get('logoAnnotations', [])] or None
+            text = response_data.get('textAnnotations', []) or None
             extracted_text = text[0]['description'] if text else ""
                 
             label = labels[0] if labels else None
@@ -63,6 +66,7 @@ def upload_image():
             # Pass the search query to Oxylabs
             retailers_info = []
             ratings = []
+            ratings = []
             for retailer in retailers_list:
                 oxylabs_results = query_oxylabs(search_query, retailer)
                 if retailer == "amazon_search":
@@ -71,6 +75,7 @@ def upload_image():
                             title = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["title"]
                             price = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["price"]
                             rating = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["rating"]
+                            ratings.append(rating)
                             ratings.append(rating)
                             retailers_info.append({"retailer": retailer, "title": title, "price": price, "rating": rating})
                         except:
@@ -94,6 +99,8 @@ def upload_image():
                 'logos': logos,
                 'text': extracted_text,
                 'search_query': search_query,
+                'results': retailers_info,
+                'ai_description': ai_description,
                 'results': retailers_info,
                 'ai_description': ai_description,
             }), 200
