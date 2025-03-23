@@ -34,4 +34,22 @@ ScanCart is a full-stack retail application that allows users to scan an image o
 1. Clone the repository:  
    ```bash
    git clone https://github.com/your-repo/scancarts.git
-   cd scancart/frontend
+   cd ScanCart/frontend
+
+2. Install dependencies:
+   ```bash
+   npm install
+
+3. Start the React development server:
+   ```bash
+   npm start
+
+### Backend Setup  
+1. Navigate to the backend folder:  
+   ```bash
+   cd backend
+
+2. Run Flask server:
+   ```bash
+   python run.py
+
