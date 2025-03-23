@@ -12,25 +12,28 @@
 
   .logo-container {
     display: flex;
-    padding-top: 60px;
+    padding-top: 30px;
 
   }
   .logo-symbol {
-    font-size: 68px;
+    font-size: 79px;
     margin-right: 0;
   }
 
   .logo {
-    font-size: 60px;
+    font-size: 75px;
     padding: 24px 0px 0px 0px;
-    line-height: 45px;
+    line-height: 53px;
   }
   .sublogo {
     letter-spacing: 4px;
     padding: 0 0 0 3px;
+    font-size: 22.5px;
   }
   .main-container {
-    border: 1px solid;
+    border: 2px solid;
+    background: white;
+    border-radius: 20px;
     display: flex;
     width: 600px;
     flex-wrap: wrap;
@@ -40,19 +43,19 @@
     display: flex;
     justify-content: center;
   }
+  
   .box {
-    width: 100%;
-    border: 1px solid;
-    justify-content: center;
-    align-items: center;
-  }
-  .box-1 {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    border: 1px solid;
     height: 500px;
+    width: 600px;
+  }
+  .upper-box, .inner-box {
+    width: 600px;
+  }
+  .inner-box {
     width: 600px;
   }
   input {
@@ -60,6 +63,7 @@
     transition-duration: 0.2s;
     background-color: #d8dad3;
     border-radius: 20px;
+    margin-bottom: 10px;
 
   }
   input:hover {
@@ -77,13 +81,14 @@
     border-radius: 10px;
     font-family: Poppins;
     font-size: 18px;
-    color: #ffffff;
+    color: #0e0f19;
     cursor: pointer;
     background-color: #f1f2eb; /* Default background */
     transition: background-color 0.2s;
   }
   button:hover {
     background-color: #67aaf9;
+    color: white;
   }
   button > span {
     position: relative;
@@ -92,6 +97,7 @@
   button.loading {
     cursor: wait;
     background-color: #67aaf9;
+    color: white;
   }
   button.loading::before {
     content: "";
@@ -109,6 +115,9 @@
       #4fa0fd 20px
     );
     animation: loading 1s infinite linear;
+  }
+  .fancy {
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='64' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg clip-path='url(%23a)'%3E%3Cpath d='M-17 30.5C-1 22 72-4 54 13 37.9 28.2-2.5 57.5 16 55.5s72-29 104-40' stroke='%2367aaf9' stroke-width='10' opacity='0.05'/%3E%3C/g%3E%3Cdefs%3E%3CclipPath id='a'%3E%3Cpath fill='%23fff' d='M0 0h100v64H0z'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E%0A");
   }
   @keyframes loading {
     0% {
@@ -131,6 +140,13 @@
   .searching {
     font-size: 30px;
     transition-duration: 0.2s;
+  }
+  .cam_button { 
+    border-radius: 100%;
+    aspect-ratio: 1;
+    padding: 35px;
+    width: 35px;
+    height: 35px;
   }
   @keyframes cart-move {
     0% {

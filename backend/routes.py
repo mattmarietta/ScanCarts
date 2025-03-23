@@ -1,33 +1,11 @@
-from flask import Flask, request, jsonify
-import requests
+from app import app  # Import app from app.py
+from flask import request, jsonify
+from utils import allowed_file, generate_product_description, generate_search_query, query_oxylabs
 import os
 import base64
-from flask_cors import CORS
-from dotenv import load_dotenv
-from pprint import pprint
+import requests
 
 retailers_list = ["amazon_search", "target_search"]
-load_dotenv()
-
-app = Flask(__name__)
-CORS(app)
-
-# Load API keys from environment variables
-API_KEY = os.environ.get("API_KEY")  # Google Vision API Key
-OXYLABS_USERNAME = os.environ.get("OXYLABS_USERNAME")
-OXYLABS_PASSWORD = os.environ.get("OXYLABS_PASSWORD")
-
-VISION_API_URL = "https://vision.googleapis.com/v1/images:annotate"
-OXYLABS_API_URL = "https://realtime.oxylabs.io/v1/queries"
-
-# Allowed image extensions
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-if not os.path.exists("uploads"):
-    os.makedirs("uploads")
 
 @app.route('/')
 def home():
@@ -64,23 +42,27 @@ def upload_image():
         }
 
         response = requests.post(
-            VISION_API_URL,
-            params={"key": API_KEY},
+            "https://vision.googleapis.com/v1/images:annotate",
+            params={"key": app.config['API_KEY']},
             json=request_data
         )
 
         if response.status_code == 200:
             response_data = response.json().get('responses', [{}])[0]
 
-            labels = [label['description'] for label in response_data.get('labelAnnotations', [])]
-            logos = [logo['description'] for logo in response_data.get('logoAnnotations', [])]
-            text = response_data.get('textAnnotations', [])
+            labels = [label['description'] for label in response_data.get('labelAnnotations', [])] or None
+            logos = [logo['description'] for logo in response_data.get('logoAnnotations', [])] or None
+            text = response_data.get('textAnnotations', []) or None
             extracted_text = text[0]['description'] if text else ""
-
+                
+            label = labels[0] if labels else None
+            logo = logos[0] if logos else None
+            ai_description = generate_product_description(label, logo, extracted_text)
             search_query = generate_search_query(logos, labels)
 
             # Pass the search query to Oxylabs
             retailers_info = []
+            ratings = []
             for retailer in retailers_list:
                 oxylabs_results = query_oxylabs(search_query, retailer)
                 if retailer == "amazon_search":
@@ -89,59 +71,33 @@ def upload_image():
                             title = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["title"]
                             price = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["price"]
                             rating = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["rating"]
+                            ratings.append(rating)
                             retailers_info.append({"retailer": retailer, "title": title, "price": price, "rating": rating})
                         except:
                             break
                             
                 elif retailer == "target_search":
-                    title = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["title"]
-                    price = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["price_data"]["price"]
-                    rating = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["rating_data"]["score"]
-                    retailers_info.append({"retailer": retailer, "title": title, "price": price, "rating": rating})
+                    for i in range(5):
+                        try:
+                            title = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["title"]
+                            price = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["price_data"]["price"]
+                            rating = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["rating_data"]["score"]
+                            ratings.append(rating)
+                            retailers_info.append({"retailer": retailer, "title": title, "price": price, "rating": rating})
+                        except:
+                            break
+            
+
 
             return jsonify({
                 'labels': labels,
                 'logos': logos,
                 'text': extracted_text,
                 'search_query': search_query,
-                'results': retailers_info
+                'results': retailers_info,
+                'ai_description': ai_description,
             }), 200
         else:
             return jsonify({'error': 'Failed to analyze image'}), 500
 
     return jsonify({'error': 'Invalid file format'}), 400
-
-def generate_search_query(logos, labels):
-    """Generates a search query for product lookup."""
-    query = ""
-
-    if logos:
-        query += logos[0] + " "
-
-    if labels:
-        query += labels[0] + " "
-
-    return query.strip()
-
-def query_oxylabs(search_query, retailer):
-    """Uses Oxylabs to get product data from e-commerce platforms."""
-    payload = {
-        'source': retailer,
-        'parse': True,
-        'query': search_query,
-    }
-
-    response = requests.request(
-        'POST',
-        OXYLABS_API_URL,
-        auth=(OXYLABS_USERNAME, OXYLABS_PASSWORD),
-        json=payload
-    )
-
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return {'error': 'Failed to fetch product data'}
-
-if __name__ == '__main__':
-    app.run(debug=True)
