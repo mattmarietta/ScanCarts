@@ -6,6 +6,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from pprint import pprint
 
+retailers_list = ["amazon_search", "target_search"]
 load_dotenv()
 
 app = Flask(__name__)
@@ -79,14 +80,31 @@ def upload_image():
             search_query = generate_search_query(logos, labels)
 
             # Pass the search query to Oxylabs
-            oxylabs_results = query_oxylabs(search_query)
+            retailers_info = []
+            for retailer in retailers_list:
+                oxylabs_results = query_oxylabs(search_query, retailer)
+                if retailer == "amazon_search":
+                    for i in range(5):
+                        try:
+                            title = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["title"]
+                            price = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["price"]
+                            rating = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["rating"]
+                            retailers_info.append({"retailer": retailer, "title": title, "price": price, "rating": rating})
+                        except:
+                            break
+                            
+                elif retailer == "target_search":
+                    title = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["title"]
+                    price = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["price_data"]["price"]
+                    rating = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["rating_data"]["score"]
+                    retailers_info.append({"retailer": retailer, "title": title, "price": price, "rating": rating})
 
             return jsonify({
                 'labels': labels,
                 'logos': logos,
                 'text': extracted_text,
                 'search_query': search_query,
-                'results': oxylabs_results
+                'results': retailers_info
             }), 200
         else:
             return jsonify({'error': 'Failed to analyze image'}), 500
@@ -105,16 +123,16 @@ def generate_search_query(logos, labels):
 
     return query.strip()
 
-def query_oxylabs(search_query):
+def query_oxylabs(search_query, retailer):
     """Uses Oxylabs to get product data from e-commerce platforms."""
     payload = {
-        'source': 'amazon_search',
+        'source': retailer,
         'parse': True,
         'query': search_query,
-        'context': [{'key': 'filter', 'value': 1}]
     }
 
-    response = requests.post(
+    response = requests.request(
+        'POST',
         OXYLABS_API_URL,
         auth=(OXYLABS_USERNAME, OXYLABS_PASSWORD),
         json=payload
