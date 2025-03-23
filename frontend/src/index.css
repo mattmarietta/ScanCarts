@@ -7,13 +7,17 @@
   }
 
   h3 {
-    font-weight: bold;
+    font-weight: 500;
+    font-size: 1.1rem;
+  }
+
+  h4 {
+    font-size: 1.1rem;
   }
 
   .logo-container {
     display: flex;
     padding-top: 30px;
-
   }
   .logo-symbol {
     font-size: 79px;
@@ -31,8 +35,6 @@
     font-size: 22.5px;
   }
   .main-container {
-    border: 2px solid;
-    background: white;
     border-radius: 20px;
     display: flex;
     width: 600px;
@@ -43,7 +45,7 @@
     display: flex;
     justify-content: center;
   }
-  
+
   .box {
     display: flex;
     justify-content: center;
@@ -52,7 +54,8 @@
     height: 500px;
     width: 600px;
   }
-  .upper-box, .inner-box {
+  .upper-box,
+  .inner-box {
     width: 600px;
   }
   .inner-box {
@@ -64,7 +67,6 @@
     background-color: #d8dad3;
     border-radius: 20px;
     margin-bottom: 10px;
-
   }
   input:hover {
     background-color: #f1f2eb;
@@ -79,8 +81,7 @@
     padding: 0 32px;
     border: 1px solid black;
     border-radius: 10px;
-    font-family: Poppins;
-    font-size: 18px;
+    font-size: 1.2rem;
     color: #0e0f19;
     cursor: pointer;
     background-color: #f1f2eb; /* Default background */
@@ -141,7 +142,7 @@
     font-size: 30px;
     transition-duration: 0.2s;
   }
-  .cam_button { 
+  .cam_button {
     border-radius: 100%;
     aspect-ratio: 1;
     padding: 35px;
@@ -154,5 +155,6 @@
     }
     100% {
       left: -50px; /* Moves across the button to the left */
-    }}
+    }
+  }
 }
