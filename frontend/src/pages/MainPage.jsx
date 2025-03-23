@@ -1,9 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import html2canvas from "html2canvas";
 // Components
-import Webcam from "react-webcam";
 import Camera from "../components/Camera.jsx";
-import AllCameras from "../components/AllCamera.jsx";
 import Card from "../components/Card";
 
 const MainPage = () => {
@@ -153,7 +151,7 @@ const MainPage = () => {
 
         {/* Display Results */}
         {json && (
-          <div className="p-5 flex justify-center flex-col items-center gap-2 w-1/2 border rounded-md bg-white overflow-y-scroll">
+          <div className="p-5 flex justify-center flex-col items-center gap-2 w-1/2 border rounded-md bg-white">
             {json.search_query && <h1>Searched for "{json.search_query}"</h1>}
 
             <div className="w-full bg-white border rounded-md p-2">

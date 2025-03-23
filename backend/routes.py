@@ -77,7 +77,8 @@ def upload_image():
                             rating = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["rating"]
                             ratings.append(rating)
                             ratings.append(rating)
-                            retailers_info.append({"retailer": retailer, "title": title, "price": price, "rating": rating})
+                            url = "https://amazon.com/" + oxylabs_results["results"][0]["content"]["results"]["organic"][i]["url"]
+                            retailers_info.append({"retailer": retailer, "title": title, "price": price, "rating": rating, "url": url})
                         except:
                             break
                             
@@ -88,7 +89,8 @@ def upload_image():
                             price = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["price_data"]["price"]
                             rating = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["rating_data"]["score"]
                             ratings.append(rating)
-                            retailers_info.append({"retailer": retailer, "title": title, "price": price, "rating": rating})
+                            url = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["url"]
+                            retailers_info.append({"retailer": retailer, "title": title, "price": price, "rating": rating, "url": url})
                         except:
                             break
             
