@@ -94,10 +94,14 @@ def upload_image():
                             break
                             
                 elif retailer == "target_search":
-                    title = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["title"]
-                    price = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["price_data"]["price"]
-                    rating = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["rating_data"]["score"]
-                    retailers_info.append({"retailer": retailer, "title": title, "price": price, "rating": rating})
+                    for i in range(5):
+                        try:
+                            title = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["title"]
+                            price = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["price_data"]["price"]
+                            rating = oxylabs_results["results"][0]["content"]["results"]["organic"][i]["rating_data"]["score"]
+                            retailers_info.append({"retailer": retailer, "title": title, "price": price, "rating": rating})
+                        except:
+                            break
 
             return jsonify({
                 'labels': labels,

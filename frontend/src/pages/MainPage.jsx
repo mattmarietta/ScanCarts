@@ -1,4 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback } from "react";
+import html2canvas from "html2canvas";
+// Components
+import Webcam from "react-webcam";
+import Camera from "../components/Camera.jsx";
+import AllCameras from "../components/AllCamera.jsx";
 import Card from "../components/Card";
 
 const MainPage = () => {
@@ -7,9 +12,24 @@ const MainPage = () => {
   const [labels, setLabels] = useState([]); // Store detected object labels
   const [logos, setLogos] = useState([]); // Store detected brand logos
   const [extractedText, setExtractedText] = useState(""); // Store extracted text
-  const [searchResults, setSearchResults] = useState(""); // Store extracted text
-  const [retailerResults, setRetailerResults] = useState([]);
+  const [searchResults, setSearchResults] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [toggleMode, setToggleMode] = useState(false);
   const [loading, setLoading] = useState(false); // Track loading state
+  const webcamRef = useRef(null);
+  const [url, setUrl] = useState(null);
+
+  const capturePhoto = useCallback(async () => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    setUrl(imageSrc);
+    const blob = await fetch(imageSrc).then((res) => res.blob());
+    setImage(blob);
+  }, [webcamRef]);
+
+  const onUserMedia = (e) => {
+    console.log(e);
+  };
+
   if (searchResults) {
     console.log(searchResults);
   }
@@ -40,6 +60,7 @@ const MainPage = () => {
 
       const result = await response.json();
       if (response.ok) {
+        setSearchQuery(result.search_query || "");
         setLabels(result.labels || []); // Update labels
         setLogos(result.logos || []); // Update logos
         setExtractedText(result.text || ""); // Update extracted text
@@ -70,30 +91,53 @@ const MainPage = () => {
       <div className="main-container">
         <div className="row">
           <div className="box-1">
-          {/* Image Preview */}
-          <div>{preview && <img src={preview} alt="Preview" width="200px"/>}</div>
-          {/* File Upload */}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleUpload}
-          />
-          {/* Submit Button */}
-          <button
-            className={`rounded-full p-2 border ${loading ? "loading" : ""}`}
-            onClick={handleSubmitImage}
-            disabled={loading}
-          >
-            <span className="searching">{loading ? "Searching..." : "Submit Image"}</span>
-            {loading && <span className="cart-icon">🛒</span>}
-          </button>
+            {/* Image Preview */}
+            <div>
+              {preview && <img src={preview} alt="Preview" width="200px" />}
+            </div>
+            <div>
+              <button
+                onClick={() =>
+                  !toggleMode ? setToggleMode(true) : setToggleMode(false)
+                }
+              >
+                Toggle mode
+              </button>
+              {/* File Upload */}
+              {!toggleMode ? (
+                <>
+                  <input type="file" accept="image/*" onChange={handleUpload} />
+                </>
+              ) : (
+                <Camera
+                  capturePhoto={capturePhoto}
+                  onUserMedia={onUserMedia}
+                  url={url}
+                  setUrl={setUrl}
+                  webcamRef={webcamRef}
+                ></Camera>
+              )}
+              <button
+                className={`rounded-full p-2 border ${
+                  loading ? "loading" : ""
+                }`}
+                onClick={handleSubmitImage}
+                disabled={loading}
+              >
+                {/* Submit Button */}
+                <span className="searching">
+                  {loading ? "Searching..." : "Submit Image"}
+                </span>
+                {loading && <span className="cart-icon">🛒</span>}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-      
 
       {/* Display Results */}
       <div className="p-5 flex justify-center flex-col items-center">
+        {searchQuery && <h3>Searched for "{searchQuery}"</h3>}
         <h3>-------Detected Labels-------</h3>
         {labels.length > 0 ? (
           <ul>
