@@ -4,26 +4,27 @@ import os
 import base64
 from flask_cors import CORS
 from dotenv import load_dotenv
-import requests
 from pprint import pprint
 
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
-query = ''
-# Set your Google API Key (Use environment variable for security)
-API_KEY = os.environ.get("API_KEY")  # Ensure you set this in your environment
+
+# Load API keys from environment variables
+API_KEY = os.environ.get("API_KEY")  # Google Vision API Key
+OXYLABS_USERNAME = os.environ.get("OXYLABS_USERNAME")
+OXYLABS_PASSWORD = os.environ.get("OXYLABS_PASSWORD")
+
 VISION_API_URL = "https://vision.googleapis.com/v1/images:annotate"
+OXYLABS_API_URL = "https://realtime.oxylabs.io/v1/queries"
 
 # Allowed image extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
-# Check if file is allowed (We check the file extensions it has)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Ensure uploads folder exists
 if not os.path.exists("uploads"):
     os.makedirs("uploads")
 
@@ -35,86 +36,97 @@ def home():
 def upload_image():
     if 'image' not in request.files:
         return jsonify({'error': 'No file part'}), 400
-    
+
     file = request.files['image']
-    
+
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
-    
+
     if file and allowed_file(file.filename):
-        # Save the image temporarily
         file_path = os.path.join("uploads", file.filename)
         file.save(file_path)
 
-        # Convert the image to base64 format
         with open(file_path, 'rb') as image_file:
             image_content = base64.b64encode(image_file.read()).decode('utf-8')
-        
-        # Prepare the request payload for the Vision API
+
         request_data = {
             "requests": [
                 {
-                    "image": {
-                        "content": image_content  # base64 encoding
-                    },
+                    "image": {"content": image_content},
                     "features": [
-                        {"type": "LABEL_DETECTION", "maxResults": 10},  # Detect objects
-                        {"type": "LOGO_DETECTION", "maxResults": 5},  # Detect brand logos
-                        {"type": "TEXT_DETECTION", "maxResults": 5}  # Detect text
+                        {"type": "LABEL_DETECTION", "maxResults": 5},
+                        {"type": "LOGO_DETECTION", "maxResults": 3},
+                        {"type": "TEXT_DETECTION", "maxResults": 5}
                     ]
                 }
             ]
         }
 
-        # Send the request to the Vision API
         response = requests.post(
             VISION_API_URL,
             params={"key": API_KEY},
             json=request_data
         )
 
-        # Parse the response
         if response.status_code == 200:
             response_data = response.json().get('responses', [{}])[0]
 
-            # Extract labels
             labels = [label['description'] for label in response_data.get('labelAnnotations', [])]
-
-            # Extract logos
             logos = [logo['description'] for logo in response_data.get('logoAnnotations', [])]
-
-            # Extract text
             text = response_data.get('textAnnotations', [])
             extracted_text = text[0]['description'] if text else ""
 
-            return jsonify({'labels': labels, 'logos': logos, 'text': extracted_text}), 200
+            search_query = generate_search_query(logos, labels, extracted_text)
+
+            # Pass the search query to Oxylabs
+            oxylabs_results = query_oxylabs(search_query)
+
+            return jsonify({
+                'labels': labels,
+                'logos': logos,
+                'text': extracted_text,
+                'search_query': search_query,
+                'results': oxylabs_results
+            }), 200
         else:
             return jsonify({'error': 'Failed to analyze image'}), 500
 
     return jsonify({'error': 'Invalid file format'}), 400
 
-# Structure payload.
-payload = {
-   'source': 'amazon_search',
-   'parse': True,
-   'query': "iphone 15",
-   'context': [
-        {'key': 'filter', 'value': 1}
-    ]
-}
+def generate_search_query(logos, labels, text):
+    """Generates a search query for product lookup."""
+    query = ""
 
-# Get response.
-response = requests.request(
-    'POST',
-    'https://realtime.oxylabs.io/v1/queries',
-    auth=('mattmarietta_ru5m0', 'Scan_Cart123'), #Your credentials go here
-    json=payload,
-)
+    if logos:
+        query += logos[0] + " "
 
-# Instead of response with job status and results url, this will return the
-# JSON response with results.
-pprint(response.json())
+    if labels:
+        query += labels[0] + " "
 
+    if text:
+        query += " ".join(text.split()[:5]) 
+
+    return query.strip()
+
+def query_oxylabs(search_query):
+    """Uses Oxylabs to get product data from e-commerce platforms."""
+    payload = {
+        'source': 'amazon_search',
+        'parse': True,
+        'query': search_query,
+        'context': [{'key': 'filter', 'value': 1}]
+    }
+
+    response = requests.post(
+        OXYLABS_API_URL,
+        auth=(OXYLABS_USERNAME, OXYLABS_PASSWORD),
+        json=payload
+    )
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {'error': 'Failed to fetch product data'}
 
 if __name__ == '__main__':
     app.run(debug=True)
