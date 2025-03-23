@@ -57,7 +57,7 @@ const MainPage = () => {
   };
 
   return (
-    <div className="w-full flex flex-col items-center ">
+    <div className="w-full flex flex-col items-center fancy">
       <div className="logo-container">
         <div className="left">
           <h1 className="logo-symbol">🛒</h1>
@@ -69,24 +69,29 @@ const MainPage = () => {
       </div>
       <div className="main-container">
         <div className="row">
-          <div className="box-1">
-          {/* Image Preview */}
-          <div>{preview && <img src={preview} alt="Preview" width="200px"/>}</div>
-          {/* File Upload */}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleUpload}
-          />
-          {/* Submit Button */}
-          <button
-            className={`rounded-full p-2 border ${loading ? "loading" : ""}`}
-            onClick={handleSubmitImage}
-            disabled={loading}
-          >
-            <span className="searching">{loading ? "Searching..." : "Submit Image"}</span>
-            {loading && <span className="cart-icon">🛒</span>}
-          </button>
+          <div className="box">
+            {/* Image Preview */}
+            <div className="upper-box" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '75%' }}>
+              <div>{preview && <img src={preview} alt="Preview" style={{maxHeight: '400px', maxWidth: '250px', minWidth: '250px'}}/>}</div>
+            </div>
+            <div className="inner-box" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection:'column'}}>
+              {/* File Upload */}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleUpload}
+              />
+              {/* Submit Button */}
+              <button
+                className={`rounded-full p-2 border ${loading ? "loading" : ""}`}
+                onClick={handleSubmitImage}
+                disabled={loading}
+              >
+                <span className="searching">{loading ? "Searching..." : "Submit Image"}</span>
+                {loading && <span className="cart-icon">🛒</span>}
+              </button>
+              <button className="cam_button"></button>
+              </div>
           </div>
         </div>
       </div>
